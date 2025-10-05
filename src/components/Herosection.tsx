@@ -11,34 +11,34 @@ gsap.registerPlugin(ScrollTrigger);
 function useMouseParallax(strength = 10) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
+
   const springConfig = { damping: 25, stiffness: 150 };
   const parallaxX = useSpring(mouseX, springConfig);
   const parallaxY = useSpring(mouseY, springConfig);
-  
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
-      
+
       const x = (clientX - innerWidth / 2) / innerWidth;
       const y = (clientY - innerHeight / 2) / innerHeight;
-      
+
       mouseX.set(x * strength);
       mouseY.set(y * strength);
     };
-    
+
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [mouseX, mouseY, strength]);
-  
+
   return { x: parallaxX, y: parallaxY };
 }
 
 // Word splitter component
 function AnimatedWords({ text, className, delay = 0 }: { text: string; className?: string; delay?: number }) {
   const words = text.split(' ');
-  
+
   return (
     <span className={className}>
       {words.map((word, i) => (
@@ -67,37 +67,37 @@ export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  
+
   // Scroll-based animations
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start']
   });
-  
+
   // Transform values for parallax
   const videoY = useTransform(scrollYProgress, [0, 1], ['0%', '-25%']);
   const contentY = useTransform(scrollYProgress, [0, 0.5], ['0%', '-10%']);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.5], [1, 0.8, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
-  
+
   // Mouse parallax for 3D effect
   const mouseParallax = useMouseParallax(15);
-  
+
   // Initial load animation
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
-  
+
   // Video ready handler
   const handleVideoReady = () => {
     setVideoReady(true);
   };
-  
+
   // GSAP for additional scroll effects
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
-    
+
     const ctx = gsap.context(() => {
       // Add any additional GSAP animations here if needed
       gsap.to(sectionRef.current, {
@@ -105,16 +105,13 @@ export default function HeroSection() {
           trigger: sectionRef.current,
           start: 'top top',
           end: 'bottom top',
-          onUpdate: (self) => {
-            // Custom scroll-based logic if needed
-          }
         }
       });
     }, sectionRef.current);
-    
+
     return () => ctx.revert();
   }, []);
-  
+
   return (
     <>
       {/* Initial black screen fade */}
@@ -128,7 +125,7 @@ export default function HeroSection() {
           />
         )}
       </AnimatePresence>
-      
+
       <motion.section
         ref={sectionRef}
         className="relative h-screen overflow-hidden"
@@ -166,9 +163,9 @@ export default function HeroSection() {
               aria-hidden="true"
             />
           </motion.div>
-          
+
           {/* Dynamic gradient overlay */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -178,7 +175,7 @@ export default function HeroSection() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
           </motion.div>
         </motion.div>
-        
+
         {/* Foreground content with cinematic animations */}
         <motion.div
           className="relative mx-auto flex h-full max-w-7xl flex-col items-start justify-center gap-8 px-6 text-white"
@@ -202,7 +199,7 @@ export default function HeroSection() {
               delay={1.6}
             />
           </h1>
-          
+
           {/* Subtitle with faster word animation */}
           <div className="max-w-3xl">
             <p className="text-xl md:text-2xl opacity-90">
@@ -212,7 +209,7 @@ export default function HeroSection() {
               />
             </p>
           </div>
-          
+
           {/* CTA buttons with pop effect */}
           <motion.div
             className="flex flex-wrap gap-4"
@@ -243,12 +240,12 @@ export default function HeroSection() {
               />
               <span className="relative z-10">Book a demo</span>
             </motion.a>
-            
+
             <motion.a
               href="#features"
               className="group relative overflow-hidden rounded-lg border-2 border-white/30 bg-white/5 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm"
-              whileHover={{ 
-                scale: 1.05, 
+              whileHover={{
+                scale: 1.05,
                 y: -2,
                 borderColor: 'rgba(255, 255, 255, 0.5)',
                 backgroundColor: 'rgba(255, 255, 255, 0.1)'
@@ -274,7 +271,7 @@ export default function HeroSection() {
             </motion.a>
           </motion.div>
         </motion.div>
-        
+
         {/* Scroll indicator with pulse animation */}
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
