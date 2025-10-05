@@ -1,5 +1,7 @@
 # TechZephyr
 
+![TechZephyr Hero Section](src/next/image.png)
+
 **A modern, visually stunning frontend experience built with React, TypeScript, and Vite, featuring cinematic, scroll-triggered animations and a seamless user flow.**
 
 This project is a showcase of advanced frontend development techniques, focusing on creating an immersive and engaging user experience through the use of cutting-edge animation libraries and best practices in web development.
@@ -107,6 +109,6 @@ Distributed under the MIT License. See the `LICENSE` file for more information.
 
 ## 📧 Contact
 
-Your Name - [@your_twitter_handle](https://twitter.com/your_twitter_handle) - your.email@example.com
+Your Name - [Twitter]([https://twitter.com/your_twitter_handle](https://x.com/arin4427)) - your.email@example.com
 
-Project Link: [https://github.com/your_username/techzephyr](https://github.com/your_username/techzephyr)
+Project Link: [Project Link]((https://techzephyr-git-main-arins-projects-7185cfde.vercel.app/))
