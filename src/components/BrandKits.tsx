@@ -1,48 +1,353 @@
 // components/BrandKits.tsx
 'use client';
-import { motion } from 'framer-motion';
-import { fadePop } from './Animation';
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 
 export default function BrandKits() {
-    const kits = [
-        { title: 'Fintech Kit', desc: 'Regulatory-ready, multi-entity, audit trails' },
-        { title: 'SaaS Kit', desc: 'Usage metrics, entitlements, trials' },
-        { title: 'Telco Kit', desc: 'OCS, convergent charging, mediation' },
-    ];
-    return (
-        <section id="brand-kits" className="mx-auto max-w-7xl px-6 py-20">
-            <div className="mb-10">
-                <h2 className="text-3xl font-semibold">Brand Kits</h2>
-                <p className="mt-2 text-slate-600">
-                    Personalize features, pricing, and visuals per enterprise client.
-                </p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-3">
-                {kits.map((kit, i) => (
-                    <motion.div
-                        key={kit.title}
-                        variants={fadePop}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, margin: '-100px' }}
-                        transition={{ delay: 0.05 * i }}
-                        className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-                    >
-                        <div className="relative aspect-[4/3] w-full">
-                            <img
-                                src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMSEhUSExQVFhUWFxcYFxcYFRgWFRUWFxcWFhUYGBYdHSggGBolHRUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGhAQGy0lICYtLS0tLS8tLS0uLS0vLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAMMBAgMBEQACEQEDEQH/xAAcAAEAAQUBAQAAAAAAAAAAAAAAAwECBAUGBwj/xABKEAABAwEDCAUHCQMNAQEAAAABAAIDEQQhMQUGEkFRYXGBEyKRscEHMkJSkqHRFENTYnKCouHwFcLSFhcjRFRjg5OjstPi8TMI/8QAGgEBAAMBAQEAAAAAAAAAAAAAAAECAwQFBv/EADQRAAIBAgMEBwgDAQEBAAAAAAABAgMRBBIhMUFRkQUTFGGBodEVMkJScbHh8CIjwTNikv/aAAwDAQACEQMRAD8A9xQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEAQBAEBBNbI2efIxv2nAd5UOSW1kOSW0w3Zw2Qf1mHlI09xWTxFJfEuaM+vp/MuZC/OqxjGdnLSPcFXtdD5kOvp8THfntYBjP/pyfwqvbKPHyfoR2inx8n6ETs/snj5/8D/4VPa6XF8n6Edoh38n6EZ8oWT/pvwlO10+/k/Qdoh38n6FP5xMn/Te5R2un3/8Ay/Qdoh38mXDyg2D6b8Lk7ZT7+T9B2iHfyfoSMz7sB+eP+XJ4NTttHj5P0HaaffyfoZMed9idhMObHjvaixtB/F/g7RT4mTHnDZDhaIecjWnsJWixNF7JLmiyr0n8S5mfDO14q1zXDaCD3LVNPYaJp7CRSSEAQBAEAQBAEAQBAEAQBAEAQBAEBHaJ2xtL3ua1oxc4hrRxJuChtJXZDaW089zj8slgs9Ww6VpePo7owd8hu9kFVzN7ERmvsPM8ueWvKMpIiEVnbqDW6b6b3u8AEyt7/wB8w03vOdiy/lW2kgTTy7et1BxJubwVXQg9uvi/Ur1UXt+7Mhma2UnYzBvGZ/7oKKhSXwrkiVSgtiXInGY1pd59qHa93eQrqEVsSLZUV/m5JxtP+lX99WuScVIWA0bVzdRc0NdzAJp2pcEbRpG+7klwZdksDXi+QN4tJ94QG2s+bcbhXpS47W0p4oLkhzXZ67uwJcXLHZrN1SH2QfFTcXLf5MEYS/hI/eUC5ZaLDaYWlwtBoNj3g7KAKjpQltiuSKuMXtR0Wb0koh6SWRx0r2aRva0Yu0sbzXXgN68PGZFWUaSs1ttx/B5mJy9ZaC1XAub5QrSwERk3HquLn1I3gEXr26UZRglN3Z6VNSUUpO7NjY/K/lNoDawPAHpRuJNNp0wStC5uG+XG00vssBO3pJBXlomnCpQHuaAIAgCAIAgCAIAgCAIAgMe326KBhkle1jRrcaD8zuVZTjFXkyJSUVdnlWdvlrijrHYmdK7DpH3MHBuJ504LPNOfuqy4v09SmaUtmn19Dx3OPOm1W12laZnPGplaRt4MFytGmlq9Xxf7p4FlBbXqQ5KyBabTfGyjPXf1WctbuQK0LHZ5JzBhZR0xMrtnms7BeeZ5IDq4LM1gDWtDWjAAAAcAEBKI0BUMQHH5x5yNc58EUmi1l0sjSOkJNf6KH6xoavwaKniB57aXtc8lrQxuprSaAC4Xm88dd5QEkEUeiSQK/aNcb8Ds71jNyzaGcnK+hjk0F1xC2NDIstqrucNYuKi1yLXNjFlqRt1x4j80StvCViT9vyeq3sPxUkj9vP8AVb2H4oC2GSS2SsiNA2tTQUo0CrnHG+labyscRWVGm5vds+u4zqz6uDkbjOa1hrBE27S6oA1MbQU7gvJ6OpOc3Ulu+7ODCQcpub3fc5qi9w9MqwIDK0262hAfXyAIAgCAIAgCAIAgCAjtE7Y2l73BrReXOIAHElRKSirshtJXZ5rnj5W4bOCyzDTdfR7hd91mLuJoOK5uvlUdqS04sx6xz0gvE8RzkzotNteXzyOI1Ct1NmwDcKBaQoqLzPV8X/nAvGmk7vVmhL9QHCngtjQ9QzdzLhha18zekloCdK9jDiQG4Gm015IDqgxAXBqAqGoCyaVjBV7mtG1zg0dpQHIZz50xub0MEgOkOvIwirRhotrg47dQ3m6AcHaxE26O6ovJNTwUg18t1MUBZpIChcgJGMIdcP8Aw34oDIdXUEBbV2z3oCrXE3UvQHY5qWLQidMcZDoN+w09Y83XfdXh9J1s1RUlsWr+r2cl9zzcbUvJQW40OVp+llc4YDqt4D4mvavTwlLq6SW/azsoU8lNIx4rwuk2Jg1Ab6LNC2OaHCF1CARqNDfguF9I0E7XfJnM8VTTtryPqVdx0hAEAQBAEAQBAYeUcqw2cVmlYzZpEAn7LcXHgqznGCvJ2KynGKu2cJlzyjPJLbKwBv0kgJJ3tZdTiewLyq3SaTtTXizgqY7dBeL9Dicu2602ynTTyGmAbotaN+iG0ryXDLGzk7zs/rs8jn7TJu8tTmJs0w4l3SvqdbgD3UXTHpVrRxX2NljmvhRiTZlyUqHtI+sHNFeN62j0tTe2L+/oarHR3xf7yIYM1bQxzXtMYc0gtOkTQg1BoW07Vr7Uod/L8l+20u/98Tdj9q/2hnYz/iUe1aHB8l6kdupd/wC+JdXKv9pj9ln/AAqPa1DhLkvUdupd/wC+JWuVf7TH7LP+FPa1DhLkvUdupd/74mJacm5Sk86013CVzR2NaAp9q4fv5fknt1Lv5fk1r80bSTU9GTt0zU89FPauH7+X5HbaXfy/JE7M2f1Wn7/5KfamH4vkO20u/kWjNO0NvEY9tp7yrLpLDP4vJ+hZYylx8iQZqWg4hvN48KqH0nh1vfIh4yl38irMy5tsftuP7qo+laHB8l6lXjqXf++JPHmU/W9nvKo+l6e6L8irx8eDJf5GHXIPY/7KvtiPyef4I7evl8/wXtzLGuT8H/ZV9sf+PP8ABXt/CPn+CeLMkHBzjvDQB2qj6Zt8K5kdvl8pkDMyMYvdy0fgq+2pPZAjt8uCNjaLOAwMb1WtaGtA1ACmJ166rgjUbm5y1bdzkztyzM5C1ZIdF5vWaO0cR4hfQ0MdCppLR+R6tLFRnt0Zr2No+mp3eF2nSZ0B0XNwrUEA31pfhrFyzqv+D+hSo7Qb7jsP5wLX/dewf4l4PZIcXz/B5VmfRC+iPYCAIAgCAIDGyhb44GGSVwYwYk+4AYk7heqznGCzSehWc4wV5HmecWf80tWWesMeGlcZXeDOV+9ePX6Sb0p6LiebVxkpaQ0Xmck2IucXuJc44ucS5xO8m8ryqlWUnqzjbb2k4jWOYqTQ2UuwGGJNwHEm4IrskkLmM80abtpHUHBuLufYrXSGhDK5zzVxJO/UNgGoblVyFygjUXILgxRcFQxRcFwYouCuglwV0FFwVEes4JmBY4V4agpWgHRpmBXokzAubBW7X7+xE7k2NnZM35H3u6g33u9n4raFKUi6ptmTPZYYOq1um/WXXgfdwqoqzjS/itWS7RNdPI5xqVy3u7szbuYzrOSrqaRBjy2VaRqEmvnsdTdiuqlJvYXg3fQ1dryMwkGRhB9YEi/eQu+OIrU1ZPTmdSrTgtGUlsUbI3BraPNKUobtek+tSdXNZqrUqSTk7r93Geac3/JmjIdsPYuxZTWx9br1j0wgCAIAgMTK2Uo7NE+aZwaxgJJ4ahvVZzUFdkSkoq7PGcuZentkzjMwxBpBjiLgSyN4BY5zR5rnC+hvw1UC8HpJ1c6zbGtnD1PKxmfMsxgRsqe7j+r15rZyGW1ixbIMnoQ299a6mDzuZ9Ee/drU24k2ttIppC643NGDRc0ctZ3m9HIXLRGq3ILhGouC4RqLguDFFwVEai4LujS5JURqLgms9m0jS4ACpJwaBiSr04ubsiUrkBZXhqHid6pexBeIVGYEsVlLjRoJO79Xc1aKlLYiVFs2dmyGTe803NvPbqW8aHEuoG3s1kZH5rQN+s811QhFbC6SROFsmkWMOexxOJJF+uhNeYCxnTpSd2iHFMhMETbwzDWf+xVMlKOqRGVGpypbmHzWius4V7FzVnGo/wCK8SJamimtRcaN1q9Khd2KqNzjM485JKmKznRDSQ6QXucRiGmlw3+GP0mFwcYxTkvA9Kjh0ldmnyNnNNE8Nle6SM3Pa8lxAOtpN4O7ArethoSjorM0qUYtaI7SSEOpomooC06iCLj2LzIxS2nEkkY3yJ+z3rb+HA0vE+ll656AQBAEBQlAeYZx5yRWi0APGlDD/StqaM0WaUhkdffpCKQt3M+suGnJ162f4Y6LvfHwWz6nNTl1s825bO/v9DyvIzLQyR1stbjGLU4BoeOtNK4h1Wt9FjWnE3DSaNdzpCj1lG62rX1IxdPPT02o6+CP9cf0F8tNnkGY06Pm3u9bUPs79/ZtVcyROwj6NVcipcI1XMSXiNRmBcIlGYFwjUZgTR2Rxwa48irKE3sTJysyGZKkPo9pAWiw1V7i2Rkzciv2tHM/BXWDqcUT1bJW5DOt47PzV+xPfInqyRuS6t0Q6ja9Y0veRhdW5o7+S0jh/wCGVP8AJOTSxI3JcTcauOyvgNSlYalHbqFBGRHZWjBoHAX83Y9namanH3Ui1kthbNbIornPY3dUV9nEqYQnU91N/REqMpbEai1Z2wt8xr340NNBppjeb/cu+n0dWltsv3uN44ab26GrkzumeQ1jWsqaCgMj66qaieS7IdGQXvSb8vU2jhI72bBmSbRKD8omkFfQBA0ftgdUH6oqbr6KleeGw2kYpy4bed9gm6VLRK7Mhj4rMzo4xQVqRrJOLnHbcOxeLXxLnK8tX9jjlJyd2aa35Tc7E8tS5rSm7yKNmpllLlvGKQSuYOXLSYIHEHryHQbtFfOPIA86L08BQzTuzpw9O8jhZJxE2goTStNguDSeNcNnFe+eiQZSa14L26seFaXjaD3g8AOzzMtPSWdoOLCWcsW95HJeViY5Zs4KqtJnS9CFzZjI92XvHqBAEAQHG+UbLnRRizsPXlHX2tiwPtGo4By87pHEdXDItr+xx4ytljlW1/Y82inkikdOxrJS5ui6OTzXUbosodQFG1bcHBujUAmvnYHHqiurns48Dmw2K6v+Mthh5WsbbSLK2V7pTEHveXXaU0zw5wOFzWtjbQUHVoLgK9OL6R0y0n4+hpXxm6nzNyyPWDjzH64L51y4nnkrWnZXgfA/FUbRNiWMVuoa8D3i5Qk27IKNzYQ5McdY5X+/D3rojhJvboXVNmXHkoDEPPDRHito4OK2st1aJxZo2ipidTWTR3uBJPILVUKS3FsqMyFraAtDaEVBbShGogjFaLLHYiS9zqYlTnFyzp2es32gq5wOnbtrwBPcocyAZdzuwj3mio5gwMpZQdFG5/RP0W46OgXU200rmjWb+GtTTfWTUE0m+JaEczsc2/O55B0GMjGqpMjidWztNea9SPRKf/SfgtPU7I4RfEzW5etVpbNJBJM9xY4tIb1WuO5raVHFdtPBUKeyK8dfubRowjuMqxZKjgAktVAcWwA0e7WDL6jfq+c7dius1M7OPJEkz4HsBaHwML+kpG2AguuINBG2lKNGy5Q2krsbDbZFyRHZ26Tal1L5SNF52hgN8Td/nHXo4HxsZ0lthR5+nqcVXE7ocyHKOUwBotuA2YDgvBlUb0jzOM5202olIUyLmIalbpBInhiXRTp72aJHJZ7WqswZqjZfxd1nfhAXuYKFoOXE7sPG0bnIvdpadT1vcRpDuw7F2HQSB2rVojS3l2jpe5AdF5PZKGVh+qew0PeuHGLVHJiFqjvV5xzHuK+gPUCAIAgPFs/rToZRlZK6hcGOZU3FhaAKHV1g4U2grwukMPUdRzWqPKxVKTm2a1hXkNHGU0euN6X/AIsG1iauSTJNhYrEX7hrPwV6VGVR9xeMbm7s9nawdUc9ZXpU6UKa0NUkiUlXctNCTVZLs8rgHSOkBq4uDtEVr5oZoklrBfeTU3XAXLSrKmtI/wC+ff5HZVqUYxywV3xNwuZyOEj6BnqN9kKHIXKtiaMGgcgq5gX1VXICqzc7AosnNskUUKLYNC/NWLScQaMcWksobqEEhjgRog0w1Vu1U9uh0pOEMtTV8b/fidMMVJKzVzZy5Pa6Z9oN0r6Ve0AFtAG1ZWuiaDEX763pPpie5IPFT3JFtkyVDE7Ta06d/XLnF9TidImt65Z9J15b/wDDN16j3mQ8tYC4gDfQVXJPE1J+8zNtvazn8p5ULrhcFhdy0WwqaGeclbRhYjaQBq1SLKJM1i3pxSepdWMqJ7BixzvtPDB2Nr7yV6UKmHh8Lf1sbqVKO5s8vzgk6SWZwAGk95AqAAA6gFTT0V60fdR2x2I1Lm0cddW4i8Hqg3HX1gpJJ7Q1rS6tTgLjTXUX0w0QO1AbvMp4E8lLqivaWmneuPFrRHJiNqPQarzbHMe5L3z1AgCAIDxP/wDQdjaJIZvSfGY/uscX971y1v8ApH6P98zmq++jyKwZwTwGjXaTR6D+s3lrbyKirhKVZfyWvEtKhCotUdnkTOWObRLx0ZvxNW3H1rqc15GJ6MnCLdP+X3OGrg5R1jqdlYpY3kAPaQTiHArxOrlmtJWOdRe86mMAAAYBemrRVkalapcFwKo5AqqORBVVcgVqq5gFVyAWbmSKKoI3zNbi5o4kBSr7gYsuWLO3GeIf4jfir5Kj3MWMObOqxtxnZyqe4Kyw9V/CwYU2ftib8453BvxotFga73E5Wa+fymWUYNeeNG/Faroysyypye4178+orQTTqgXU1Cu/aoqdG1YbRKnJbS35WHAGoJOwdmtZdXZlLFASpJK1Qm5eHq6qMFkk1ATsFVaMpSkkFq7Hl2UTd2Hvr4L609Yh6NzWNeRcXEN36yKbL/eVAJZYd5IF+GJIBcb9l45IDd5nn+me440HYQKLjxj0ic2J2I7bp964bHKe/r2z0wgCAIDwry62rTtbI/o4h2vJd4BefVles+6y/wB/04a0v7bcEeLzijjxXdD3UdkPdRm5Mfc4Y0INP1wCOST1Dkk9SP5I9pqHU4EgqjqRejKOpF7S+DKtpj82aVvB7lV0KMtsUHCm9yNlZs87ez+sy8zXvWbwVB/CV7PTe4z4/KHbx89Xixh8Fm+jqD3eZXssDIZ5TLeMXsPGNvgFR9F0e8jsseJMPKlbf7o/c/NV9lUuLI7IuJIPKrbPVh9k/FV9kUuLI7J3kVp8p9teKN0G/ZaPGqR6Iop6tslYVb2aq055W115nkv2PcBXgCt10dh1sRbs0DBmzgtDvOkceLnHxWiwVFbiVhod5jOyjIfSK0WHprcWWHp8Cj7Q+lS4+5T1cL2SHV072SMfpnHFx7VfJHgaKEVuIC8nWe1WsibIkstmdI9sbBVziABvPgonNQi5S2ISairs623QR2aHo236N7neu/bw1DcvHpSliKuZ79ncjzm3VqGiyNluWB9RVzT5zdW002Fd+IwkK0bbHxOypRjJabT0KyW5srA9hqD7txXztSlKnJxkefKLTsyTSVLFSuklgY2UJKRvN3muxww1rfDRvWgu9GlJXmvqeeWrEbr+V6+pPUKxWigAA9Kp1AYYa1AI8oO0naTQA0nq4agB2XKIqyKxVkbzNZ3XkO5g7APguLHO2XxOfEvYdH8qC4M5zan0ovePTCAIDW5w5bisUD7RMaNYMNbnamt2kqs5KKuys5KKufOeXM8YbZaHzSsLHO2DTaALmjbhTUvKq4evKTmmtd2w4KlGpN5vI109hss3WEkXHTDHcwSD2hUjVxFLSz5XKRlWp6WZr7TkmOzuqZDePNFHOIO8XDifeumGJnWVlHxN41p1FZoxn5Rc3zP6MfVxPF2J7loqEX72pdU0zEOVpji4Hi1ju8Lbs1Ph5s26qHAlZbjrEZ/w2juATqI7m+b/ANI6mJX5SNcbOWkP3lPU8JPy9B1XBsGZn0fY8+IKdXP5vInJL5imlFra8cHA+CZavFcvyRlnxKaMJ1vH3Qe5yj+5cP3wH9ncZUWSA9unG7SGugvB2EHBYyxLg8s1YynXlB2kiCfJzwfWGylD+avDERe3QmFeL26GKY1tmNlMkih1lRKpwKyqcCK1TVuCmEbEwjYgcVoaFqA7TNTJ3QxfKHjryAiMa2x4F3F2A3A+svFx9frJ9VHYtv14eH3+hw4mrrlNRnLatJ2gDheeOofrcuzBUsscxfCw0c3vMTJsVznm/wBEeK7jrMzI2UTZ5b//AJvPW3H1lxYzDKrDTatnoYVqWZXW07lr63r59qx55WqiwMLLL6QvO7xAXVgl/fE1o++jh5CNdKH3U/MhfSHpEUtwuwNeVANG/mEBGMaAA1AIGw3BAdBm1EXCQj16V1XD815uOazK/A5MQ9UdALAPr9h+K4Os/dDlzn0svoT1S0vAQET7S0IDmM78j2e2gdLpBzAQ0g1ArjVhuOA2HesK1CNXbdPuMatGNTaeXZYzF0K6Gi8bW9U82nwJXFLDYiHuvN5fvM5ZYerH3Xc4u15NlY6kVmmr9I6FxA+wKUHE38FvTo1JL+x27l/r/wA+5tTpSfvs01rsz2PpKS1xvIcC0muvrYrqjCK0SN1BIxTZDiDXgaq5cjNncMW96AsLN3YfigKU4oBU7SgGmdqAdIUBkWHKD4Xh7DfrBwcNYcNYWVWlGrHLIpOCmrM7vJ00VqjMkYoW+ezFzD4t2HxXgVoVMPPLLZufE8qrSlTZg2nJscnpRjf0jQe9bwr1IbnyZMJziYpzbB+fbT7cfxW3tBr4PJm6xMl8JZ/JMH55vtM+Kt7Sfy+TJ7XP5SozPr85XgWnxUe0/wDz9x2yXymTYcyavBeXFjb3ClNID0Qdpw511LOp0raLslfcR2yXA31tiLrzduAuAGAGwAXLz6ckjjlK5w2UsjzBznFpfUk1afClV79HFUWkk7fU9OliKTSSdiGzWtoAY9pbS7/0LqOhE8vRPaQHN8UuLo6TNN73wkG8Ru0A7UbgQOIBHuXg9IQjCrdb9Tz8RFRl9TeNh2kBcSszE1OcsgED6VPm/wC9q7MDH++Pj9mbUP8AojiphUH9Y/nRfQHoiZtABhS7f6LT/tcVFiEiyEAHS9QVPh3hSSSWbLEscfRxnRFSSaAuqcb6XBc8sNCc80tTKVGMneRjm2ym/pH+2fiteqh8q5F8keB9oSyK5YwZ7QgNRbLaQgOWyxnA2Ouk6iA4LLPlBAqGAuKA5O3Z4WmTBwYNwv7UBp7RbpJPPeXcb0BBVAVbIRgSOZQF/wApf6x5396AfKXbvZb8EBX5R9Vv4vigK9O3WwciR31QDpGeqfaH8KAAx7HdgPigMnJ9u6CQSRPc1w+qCCNbXDSvBWVajCrBwmtCk4KasztLHJZba3TaWxy+lGTr2tr5w968GrGvhXZ6x3P1PMq0p0npsMefIDtQryV4Yxb2UVSRrZ815HfN9lV0x6QgviOiOJsY5zQm9V3Z+S19p0+Jp2xcCsObdpjOkzpGkYFpIPuUSx1CatKzRDxUJbUdFk+32pvVtELpB67W0eOIwd7jxXm1qOHetKaXc9n4OacaUtYuxt32dpFRW/ax4PMaK41Np2f3Xqc9jCtOSmP88A8WE94W8MTKHuvzLxlKPusxf2JZW+c1v4G958FssZiHsf39DVVar3syH5Us8bQxr4Y2Nua0PBpW8mgxJxJUOhWqPNJNv6E5aknezZr7RnFZxjKXfZYe80W0cDWfwl1QqvcanKucEUkbmNY811uIFDWoNBjQjBdmHwc6c1JtG9KhOMk2zSsf8F6Z2FZWEkEc776m6vCiAsnZQUaCScaAm4akBPYshTSYNoNp+CA3AzKk9f3ID6wfDVAYc9jqgNVa8mkoDk8u5ptlBqL0B5xlvyeSAksCA5O15rWlnzZPBAa2awyt86Nw5FAY5uxQBAEAQBAEAQBAEAQFwedp7SoyrgRlXAr0zvWd7RUZI8CMq4FwtUnrv9o/FR1cOC5DJHgXi3Sj5x/tu+KjqafyrkhkjwLhlKb6WT/Md8VHUUvlXJDJHgHZRmOMsntu+KdRS+VckMkeCIHzuOLnHi4lXUIrYicq4EdFYkqgKIAgJI3HAX7hegN1k/I1plpoxkD1n9UDxPYgOzyNmx0bRpHSdroKBAdFZ8l7kBmDJqA9hQBAWloKAifZWnUgMSbI7HIDW2nNhrtQQGnteZgPojsQGht3k/Y7GMdiA0Fs8mUZ+bpwuQGltXkw9UvHvQGqtHk4mHmv7WoDXzZjWpuGie0IDClzVtTfm68CgMSTItobjE/sQGO+xyDGN4+6UBC5hGII5FAW1QFUAQBAEAQBAAgJY7K92DHHkUBsbLm7aX4RnmgN7YMxpz59ByQHSWLMlgxbXkgN7Y82mtwYByQG2hyKdiAz4cjHYgM+HJO5AZX7LQHWoAgCAIAgCAIAQgLHRNOodiAidYoz6IQED8kxH0UBA/IER1IDHfmxEdQQGO/NKM6ggMeTMuM+iEBiS5gQnFg7EBhTeTGzOxjHYgMSTyTWQ/NBAQu8kdl+j96AjPkisvqHtQFv80Vl9Q9qAqPJHZPUPagJovJVZB8370BnQeTuzNwiagNhDmfE3BjRyQGXHm20akBksyC3YgJ2ZGaNSAnZksDUgJW5PGxAStsQQEjbMEBf0AQEqAIAgCAIAgCAIAgCAIAgCAIAgCAIAgCAIClEAogFEA0UAogFEBVAEAQBAEAQBAf/2Q=="
-                                alt={`${kit.title} preview`}
-                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                loading="lazy"
-                            />
-                        </div>
-                        <div className="p-4">
-                            <div className="font-medium">{kit.title}</div>
-                            <div className="text-sm text-slate-600">{kit.desc}</div>
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
-        </section>
-    );
+  const [activeIndex, setActiveIndex] = useState(1);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const kits = [
+    { 
+      title: 'Fintech Kit', 
+      desc: 'Regulatory-ready, multi-entity, audit trails',
+      gradient: 'from-blue-500 to-purple-600',
+      image: '/api/placeholder/400/300'
+    },
+    { 
+      title: 'SaaS Kit', 
+      desc: 'Usage metrics, entitlements, trials',
+      gradient: 'from-emerald-500 to-cyan-600',
+      image: '/api/placeholder/400/300'
+    },
+    { 
+      title: 'Telco Kit', 
+      desc: 'OCS, convergent charging, mediation',
+      gradient: 'from-orange-500 to-pink-600',
+      image: '/api/placeholder/400/300'
+    },
+  ];
+
+  // Auto-advance carousel
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % kits.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, kits.length]);
+
+  // Pause auto-play on hover
+  const handleMouseEnter = () => setIsAutoPlaying(false);
+  const handleMouseLeave = () => setIsAutoPlaying(true);
+
+  return (
+    <section 
+      id="brand-kits" 
+      className="relative mx-auto max-w-7xl px-6 py-20 overflow-hidden"
+    >
+      {/* Animated Background Gradient */}
+      <div className="absolute inset-0 -z-10">
+        <motion.div
+          className="absolute inset-0 opacity-30"
+          animate={{
+            background: [
+              'radial-gradient(circle at 20% 80%, #3b82f6 0%, transparent 50%)',
+              'radial-gradient(circle at 80% 20%, #8b5cf6 0%, transparent 50%)',
+              'radial-gradient(circle at 40% 40%, #06b6d4 0%, transparent 50%)',
+              'radial-gradient(circle at 20% 80%, #3b82f6 0%, transparent 50%)',
+            ],
+          }}
+          transition={{
+            duration: 10,
+            ease: "linear",
+            repeat: Infinity,
+            repeatType: "loop",
+          }}
+        />
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)',
+          }}
+        />
+      </div>
+
+      {/* Header */}
+      <motion.div 
+        className="mb-16 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+          Brand Kits
+        </h2>
+        <p className="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">
+          Personalize features, pricing, and visuals per enterprise client
+        </p>
+      </motion.div>
+
+      {/* Carousel Container */}
+      <div 
+        ref={containerRef}
+        className="relative h-[450px] flex items-center justify-center"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="relative w-full max-w-5xl mx-auto">
+          <AnimatePresence mode="sync">
+            {kits.map((kit, index) => (
+              <BrandKitCard
+                key={kit.title}
+                kit={kit}
+                index={index}
+                activeIndex={activeIndex}
+                totalCards={kits.length}
+                onClick={() => setActiveIndex(index)}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Navigation Dots */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2">
+          {kits.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveIndex(index)}
+              className="group relative p-2"
+              aria-label={`Go to slide ${index + 1}`}
+            >
+              <div className={`
+                w-2 h-2 rounded-full transition-all duration-300
+                ${index === activeIndex 
+                  ? 'w-8 bg-gradient-to-r from-blue-500 to-purple-600' 
+                  : 'bg-slate-400 hover:bg-slate-600'}
+              `} />
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Individual Card Component
+function BrandKitCard({ 
+  kit, 
+  index, 
+  activeIndex, 
+  totalCards, 
+  onClick 
+}: {
+  kit: any;
+  index: number;
+  activeIndex: number;
+  totalCards: number;
+  onClick: () => void;
+}) {
+  const isActive = index === activeIndex;
+  const offset = (index - activeIndex + totalCards) % totalCards;
+  const adjustedOffset = offset > totalCards / 2 ? offset - totalCards : offset;
+  
+  // 3D tilt effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-100, 100], [10, -10]);
+  const rotateY = useTransform(x, [-100, 100], [-10, 10]);
+  const springRotateX = useSpring(rotateX, { stiffness: 300, damping: 30 });
+  const springRotateY = useSpring(rotateY, { stiffness: 300, damping: 30 });
+
+  // Ripple effect state
+  const [ripples, setRipples] = useState<Array<{x: number, y: number, id: number}>>([]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isActive) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    x.set(e.clientX - rect.left - centerX);
+    y.set(e.clientY - rect.top - centerY);
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isActive) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const rippleX = e.clientX - rect.left;
+    const rippleY = e.clientY - rect.top;
+    
+    setRipples(prev => [...prev, { x: rippleX, y: rippleY, id: Date.now() }]);
+    
+    setTimeout(() => {
+      setRipples(prev => prev.slice(1));
+    }, 1000);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  // Calculate position and scale
+  const xPosition = adjustedOffset * (isActive ? 280 : 250);
+  const scale = isActive ? 1 : 0.85;
+  const zIndex = totalCards - Math.abs(adjustedOffset);
+  const opacity = Math.abs(adjustedOffset) > 1 ? 0 : 1;
+
+  return (
+    <motion.div
+      className="absolute top-1/2 left-1/2 cursor-pointer"
+      style={{
+        rotateX: isActive ? springRotateX : 0,
+        rotateY: isActive ? springRotateY : 0,
+        transformStyle: "preserve-3d",
+        zIndex,
+      }}
+      initial={{ 
+        x: '-50%',
+        y: '-50%',
+        scale: 0.8,
+        opacity: 0 
+      }}
+      animate={{ 
+        x: `calc(-50% + ${xPosition}px)`,
+        y: '-50%',
+        scale,
+        opacity,
+        filter: isActive ? 'none' : 'brightness(0.7)',
+      }}
+      exit={{ 
+        scale: 0.8,
+        opacity: 0 
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        opacity: { duration: 0.2 }
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      whileHover={isActive ? { scale: 1.02 } : {}}
+    >
+      <div className={`
+        relative w-[320px] h-[380px] rounded-2xl overflow-hidden
+        ${isActive ? 'shadow-2xl' : 'shadow-lg'}
+        transition-shadow duration-300
+      `}>
+        {/* Glow Effect */}
+        {isActive && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className={`
+              absolute inset-0 bg-gradient-to-br ${kit.gradient}
+              opacity-20 blur-3xl scale-150
+            `} />
+          </motion.div>
+        )}
+
+        {/* Card Background */}
+        <div className={`
+          absolute inset-0 bg-gradient-to-br ${kit.gradient}
+          opacity-10
+        `} />
+
+        {/* Image Container with Ripple Effect */}
+        <div className="relative h-[60%] overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
+          {/* Ripple Effects */}
+          <AnimatePresence>
+            {ripples.map(ripple => (
+              <motion.div
+                key={ripple.id}
+                className="absolute rounded-full border-2 border-white/30"
+                style={{
+                  left: ripple.x,
+                  top: ripple.y,
+                  x: '-50%',
+                  y: '-50%',
+                }}
+                initial={{ width: 0, height: 0, opacity: 1 }}
+                animate={{ 
+                  width: 300, 
+                  height: 300, 
+                  opacity: 0,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+              />
+            ))}
+          </AnimatePresence>
+
+          {/* Placeholder for actual image */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`
+              w-32 h-32 rounded-2xl bg-gradient-to-br ${kit.gradient}
+              opacity-20
+            `} />
+          </div>
+
+          {/* Liquid overlay effect */}
+          {isActive && (
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/10"
+              animate={{
+                backgroundPosition: ['0% 0%', '100% 100%'],
+              }}
+              transition={{
+                duration: 3,
+                ease: "linear",
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            />
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-white">
+          <motion.h3 
+            className="text-xl font-bold text-slate-900 mb-2"
+            animate={{ scale: isActive ? 1 : 0.95 }}
+          >
+            {kit.title}
+          </motion.h3>
+          <motion.p 
+            className="text-sm text-slate-600"
+            animate={{ opacity: isActive ? 1 : 0.8 }}
+          >
+            {kit.desc}
+          </motion.p>
+          
+          {isActive && (
+            <motion.div
+              className="mt-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <span className={`
+                inline-flex items-center text-sm font-medium
+                bg-gradient-to-r ${kit.gradient} bg-clip-text text-transparent
+              `}>
+                Explore Kit →
+              </span>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
 }
