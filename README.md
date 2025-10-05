@@ -107,6 +107,6 @@ Distributed under the MIT License. See the `LICENSE` file for more information.
 
 ## 📧 Contact
 
-Your Name - [@your_twitter_handle](https://twitter.com/your_twitter_handle) - your.email@example.com
+Your Name - [@your_twitter_handle]([https://twitter.com/your_twitter_handle](https://x.com/arin4427)) - your.email@example.com
 
-Project Link: [https://github.com/your_username/techzephyr](https://github.com/your_username/techzephyr)
+Project Link: [https://github.com/your_username/techzephyr]([https://github.com/your_username/techzephyr](https://techzephyr-git-main-arins-projects-7185cfde.vercel.app/))
