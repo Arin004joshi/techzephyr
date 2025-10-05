@@ -1,6 +1,6 @@
 // components/StatsSection.tsx
 'use client';
-import { motion, useInView, useMotionValue, useSpring, animate, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -11,24 +11,24 @@ gsap.registerPlugin(ScrollTrigger);
 function useSlotMachineCount(target: number, shouldStart: boolean, duration = 2) {
     const [displayValue, setDisplayValue] = useState('000000');
     const [isRolling, setIsRolling] = useState(false);
-    
+
     useEffect(() => {
         if (!shouldStart) return;
-        
+
         setIsRolling(true);
         const targetStr = target.toLocaleString();
         const digitCount = targetStr.replace(/,/g, '').length;
-        
+
         // Random rolling effect
         const rollInterval = setInterval(() => {
             const randomNum = Math.floor(Math.random() * Math.pow(10, digitCount));
             setDisplayValue(randomNum.toLocaleString().padStart(digitCount, '0'));
         }, 50);
-        
+
         // Gradually slow down and settle on target
         const slowdownTimeout = setTimeout(() => {
             clearInterval(rollInterval);
-            
+
             // Final approach animation
             let current = 0;
             const increment = target / 20;
@@ -42,13 +42,13 @@ function useSlotMachineCount(target: number, shouldStart: boolean, duration = 2)
                 setDisplayValue(Math.floor(current).toLocaleString());
             }, duration * 1000 / 20);
         }, duration * 500);
-        
+
         return () => {
             clearInterval(rollInterval);
             clearTimeout(slowdownTimeout);
         };
     }, [shouldStart, target, duration]);
-    
+
     return { value: displayValue, isRolling };
 }
 
@@ -63,7 +63,7 @@ function AnimatedChart({ inView }: { inView: boolean }) {
         { month: 'May', value: 91, label: 'CO2 Reduction' },
         { month: 'Jun', value: 95, label: 'CO2 Reduction' },
     ];
-    
+
     return (
         <div className="relative h-full w-full p-8">
             {/* Animated grid lines */}
@@ -83,7 +83,7 @@ function AnimatedChart({ inView }: { inView: boolean }) {
                 </defs>
                 <rect width="100%" height="100%" fill="url(#grid)" />
             </svg>
-            
+
             {/* Bar Chart */}
             <div className="relative z-10 flex h-full items-end justify-around gap-4">
                 {chartData.map((item, i) => (
@@ -119,7 +119,7 @@ function AnimatedChart({ inView }: { inView: boolean }) {
                                 }}
                             />
                         </motion.div>
-                        
+
                         {/* Tooltip */}
                         <AnimatePresence>
                             {hoveredBar === i && (
@@ -135,12 +135,12 @@ function AnimatedChart({ inView }: { inView: boolean }) {
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                        
+
                         <div className="mt-2 text-center text-xs text-slate-600">{item.month}</div>
                     </motion.div>
                 ))}
             </div>
-            
+
             {/* Animated trend line */}
             <svg className="absolute inset-0 h-full w-full pointer-events-none">
                 <motion.path
@@ -172,7 +172,7 @@ function ConnectingParticles() {
                 <motion.div
                     key={i}
                     className="absolute h-1 w-1 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"
-                    initial={{ 
+                    initial={{
                         x: `${20 + i * 15}%`,
                         y: -10,
                         opacity: 0
@@ -203,23 +203,23 @@ export default function StatsSection() {
     const sectionRef = useRef<HTMLDivElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const inView = useInView(sectionRef, { once: true, margin: '-100px' });
-    
+
     // Scroll-based animations
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ["start end", "end start"]
     });
-    
+
     // Parallax transforms for different layers
     const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
     const cardsY = useTransform(scrollYProgress, [0, 1], ['0%', '-10%']);
     const chartY = useTransform(scrollYProgress, [0, 1], ['0%', '-15%']);
-    
+
     // Background color transition
     useLayoutEffect(() => {
         const section = sectionRef.current;
         if (!section) return;
-        
+
         const ctx = gsap.context(() => {
             gsap.to(section, {
                 backgroundColor: '#f8fafc',
@@ -231,33 +231,33 @@ export default function StatsSection() {
                 },
             });
         }, section);
-        
+
         return () => ctx.revert();
     }, []);
-    
+
     const kpis = [
         { label: 'CO2e reduced', value: 128450, suffix: ' t', icon: '🌱' },
         { label: 'Efficiency gain', value: 37, suffix: '%', icon: '⚡' },
         { label: 'Realtime events/min', value: 2400000, suffix: '', icon: '📊' },
     ];
-    
+
     return (
-        <section 
-            ref={sectionRef} 
+        <section
+            ref={sectionRef}
             className="relative mx-auto max-w-7xl px-6 py-20 overflow-hidden"
             style={{ backgroundColor: '#0f172a' }} // Start with dark bg
         >
             {/* Connecting particles from hero section */}
             <ConnectingParticles />
-            
+
             {/* Animated background pattern */}
-            <motion.div 
+            <motion.div
                 className="absolute inset-0 opacity-5"
                 style={{ y: backgroundY }}
             >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-transparent to-cyan-600" />
             </motion.div>
-            
+
             <div ref={containerRef} className="relative grid items-center gap-10 md:grid-cols-2">
                 {/* KPI Cards with enhanced animations */}
                 <motion.div
@@ -266,7 +266,7 @@ export default function StatsSection() {
                 >
                     {kpis.map((kpi, i) => {
                         const { value, isRolling } = useSlotMachineCount(kpi.value, inView, 2 + i * 0.3);
-                        
+
                         return (
                             <motion.div
                                 key={kpi.label}
@@ -298,21 +298,21 @@ export default function StatsSection() {
                                         </linearGradient>
                                     </defs>
                                 </svg>
-                                
+
                                 {/* Card content */}
                                 <motion.div
                                     className="relative rounded-lg bg-white/95 backdrop-blur-sm p-6 shadow-xl"
                                     whileHover={{ scale: 1.05, rotateY: 5 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
                                 >
-                                    <motion.div 
+                                    <motion.div
                                         className="text-3xl mb-2"
                                         animate={isRolling ? { scale: [1, 1.1, 1] } : {}}
                                         transition={{ repeat: isRolling ? Infinity : 0, duration: 0.3 }}
                                     >
                                         {kpi.icon}
                                     </motion.div>
-                                    
+
                                     <div className={`text-2xl font-bold tabular-nums ${isRolling ? 'text-blue-600' : 'text-slate-900'}`}>
                                         <motion.span
                                             animate={isRolling ? { opacity: [1, 0.5, 1] } : {}}
@@ -322,14 +322,14 @@ export default function StatsSection() {
                                         </motion.span>
                                         {kpi.suffix}
                                     </div>
-                                    
+
                                     <div className="text-sm text-slate-600 mt-1">{kpi.label}</div>
                                 </motion.div>
                             </motion.div>
                         );
                     })}
                 </motion.div>
-                
+
                 {/* Animated Chart */}
                 <motion.div
                     style={{ y: chartY }}
