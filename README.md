@@ -51,7 +51,7 @@ Make sure you have Node.js (v14 or later) and a package manager like npm or yarn
 
 1.  **Clone the repo**
     ```sh
-    git clone [https://github.com/your_username/techzephyr.git](https://github.com/your_username/techzephyr.git)
+    git clone [https://github.com/your_username/techzephyr.git]
     ```
 2.  **Navigate to the project directory**
     ```sh
