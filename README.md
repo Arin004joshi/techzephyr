@@ -1,7 +1,5 @@
 # TechZephyr
 
-![TechZephyr Hero Section](src/next/image.png)
-
 **A modern, visually stunning frontend experience built with React, TypeScript, and Vite, featuring cinematic, scroll-triggered animations and a seamless user flow.**
 
 This project is a showcase of advanced frontend development techniques, focusing on creating an immersive and engaging user experience through the use of cutting-edge animation libraries and best practices in web development.
